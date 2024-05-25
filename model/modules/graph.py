@@ -77,7 +77,10 @@ class GCN(nn.Module):
 
         node_degrees = adj.detach().sum(dim=-1)
         deg_inv_sqrt = node_degrees ** -0.5
-        norm_deg_matrix = torch.eye(n)
+        # norm_deg_matrix = torch.eye(n)
+        norm_deg_matrix = torch.zeros((n,n))
+        norm_deg_matrix[torch.arange(n), torch.arange(n)] = 1
+        
         dev = adj.get_device()
         if dev >= 0:
             norm_deg_matrix = norm_deg_matrix.to(dev)

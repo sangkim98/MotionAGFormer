@@ -9,6 +9,7 @@ from model.modules.graph import GCN
 from model.modules.mlp import MLP
 from model.modules.tcn import MultiScaleTCN
 
+import argparse
 
 class AGFormerBlock(nn.Module):
     """
@@ -327,6 +328,59 @@ def _test():
 
     assert out.shape == (b, t, j, 3), f"Output shape should be {b}x{t}x{j}x3 but it is {out.shape}"
 
+def export_model():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, default="configs/h36m/MotionAGFormer-base.yaml", help="Path to the config file.")
+    parser.add_argument('-c', '--checkpoint', type=str, metavar='PATH',
+                        help='checkpoint directory')
+    parser.add_argument('--checkpoint-file', type=str, help="checkpoint file name")
+
+    import os
+    from utils.learning import load_model
+    from utils.tools import get_config
+
+    opts = parser.parse_args()
+    args = get_config(opts.config)
+
+    model = load_model(args)
+    if torch.cuda.is_available():
+        model = torch.nn.DataParallel(model)
+
+    if opts.checkpoint:
+        checkpoint_path = os.path.join(opts.checkpoint, opts.checkpoint_file if opts.checkpoint_file else "latest_epoch.pth.tr")
+        if os.path.exists(checkpoint_path):
+            checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
+            model.load_state_dict(checkpoint['model'], strict=True)
+    else:
+        print("No checkpoint found")
+        exit(0)
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model.to(device)
+
+    b, c, t, j = 1, 3, args.n_frames, 17
+    random_x = torch.randn((b, t, j, c)).to(device)
+
+    torch.onnx.export(
+        model.module,
+        random_x,
+        "motionAGFormer-small.onnx",
+        opset_version=15,
+        verbose=True,
+        input_names=["input_2d"],
+        output_names=["output_3d"],
+        # dynamic_axes={
+        #     "input_2d": {
+        #         0: "batch",
+        #         2: "num_joints"
+        #     },
+        #     "output_3d": {
+        #         0: "batch",
+        #         2: "num_joints"
+        #     }
+        # }
+    )
 
 if __name__ == '__main__':
-    _test()
+    # _test()
+    export_model()

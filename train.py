@@ -294,14 +294,14 @@ def train(args, opts):
                 wandb.init(id=wandb_id,
                         project='MotionMetaFormer',
                         resume="must",
-                        settings=wandb.Settings(start_method='fork'))
+                        settings=wandb.Settings(start_method='thread'))
         else:
             print(f"Run ID: {wandb_id}")
             if opts.use_wandb:
                 wandb.init(id=wandb_id,
                         name=opts.wandb_name,
                         project='MotionMetaFormer',
-                        settings=wandb.Settings(start_method='fork'))
+                        settings=wandb.Settings(start_method='thread'))
                 wandb.config.update({"run_id": wandb_id})
                 wandb.config.update(args)
                 installed_packages = {d.project_name: d.version for d in pkg_resources.working_set}

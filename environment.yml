@@ -1,0 +1,44 @@
+name: motionformer
+channels:
+  - defaults
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - pytorch=2.0.1=*cuda11.8*
+  - torchvision=*=*cu118*
+  - torchaudio=*=*cu118*
+  - cuda-toolkit=11.8
+  - cuda-nvcc=11.8
+  - coverage
+  - easydict
+  - flake8
+  - ipykernel
+  - json_tricks
+  - matplotlib
+  - munkres
+  - opencv
+  - parameterized
+  - parse
+  - pillow
+  - prettytable
+  - pyyaml
+  - scipy
+  - tqdm
+  - timm
+  - wandb
+  - numba
+  - filterpy
+  - yacs
+  - scikit-image
+  - onnx
+  - pip:
+    - chumpy
+    - nvitop
+    - opencv-python
+    - open3d
+    - roma
+    - smplx[all]
+    - torch-tb-profiler
+    - xtcocotools
+    - fvcore

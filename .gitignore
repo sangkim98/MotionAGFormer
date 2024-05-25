@@ -3,3 +3,5 @@
 *.pyc
 wandb
 checkpoint/*.pth.tr
+*.pkl
+*.onnx
